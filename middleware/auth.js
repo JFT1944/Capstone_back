@@ -3,6 +3,7 @@
 /** Convenience middleware to handle common auth cases in routes. */
 
 const jwt = require("jsonwebtoken");
+const { token } = require("morgan");
 const { SECRET_KEY } = require("../config");
 const { UnauthorizedError } = require("../expressError");
 
@@ -41,6 +42,25 @@ function ensureLoggedIn(req, res, next) {
     return next(err);
   }
 }
+
+function ensureCorrectUser(req, res, next){
+
+console.log(req.headers.authorization)
+console.log(req.params)
+try {
+  let oToken = req.headers.authorization
+let token = oToken.split(' ')
+console.log({token:token[1]})
+let verifiedToken = jwt.verify(token[1], SECRET_KEY)
+console.log({vToken: verifiedToken})
+return next()
+} catch (error) {
+  next(error)
+}
+
+
+}
+
 
 
 /** Middleware to use when they be logged in as an admin user.
@@ -93,4 +113,5 @@ module.exports = {
   ensureLoggedIn,
   ensureAdmin,
   ensureCorrectUserOrAdmin,
+  ensureCorrectUser
 };

@@ -48,8 +48,8 @@ CREATE TABLE ingredients (
   id Serial PRIMARY KEY,
   name TEXT NOT NULL,
   unit Text NOT NULL,
-  full_amount INTEGER ,
-  available_amount INTEGER,
+  full_amount NUMERIC,
+  available_amount NUMERIC,
   username VARCHAR(25) NOT NULL
     REFERENCES users ON DELETE CASCADE
   -- description TEXT NOT NULL,

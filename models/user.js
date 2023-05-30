@@ -23,17 +23,19 @@ class User {
 
   static async authenticate(username, password) {
     // try to find the user first
+    console.log({dw:username})
     const result = await db.query(
           `SELECT username,
                   password,
                   first_name AS "firstName",
                   last_name AS "lastName",
-                  email,"
+                  email,
+                  pref_unit
            FROM users
            WHERE username = $1`,
         [username],
     );
-
+      console.log('passed result')
     const user = result.rows[0];
 
     if (user) {
@@ -55,10 +57,12 @@ class User {
    * Throws BadRequestError on duplicates.
    **/
 
-  static async register(
-      { username, password, firstName, lastName, email, pref_unit }) {
-        console.log({username:username, password:password, firstName:firstName, lastName, email:email, pref_unit:pref_unit} )
-    const duplicateCheck = await db.query(
+  static async register({ username, password, first_name, last_name, email, pref_unit }) {
+        console.log('**** inUser ****')
+        console.log('below')
+        console.log({username:username, password:password, first_Name:first_name, last_Name:last_name, email:email, pref_unit:pref_unit} )
+    
+        const duplicateCheck = await db.query(
           `SELECT username
            FROM users
            WHERE username = $1`,
@@ -84,8 +88,8 @@ class User {
         [
           username,
           hashedPassword,
-          firstName,
-          lastName,
+          first_name,
+          last_name,
           email,
           pref_unit
         ],

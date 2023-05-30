@@ -5,7 +5,7 @@
 const jsonschema = require("jsonschema");
 
 const express = require("express");
-const { ensureCorrectUserOrAdmin, ensureAdmin } = require("../middleware/auth");
+const { ensureCorrectUserOrAdmin, ensureAdmin, ensureCorrectUser} = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 // const UInser = require("../models/user");
 const Ingredient = require("../models/ingredient");
@@ -22,10 +22,10 @@ const router = express.Router();
 
 router.post('/', async function (req, res, next){
 
-console.log('route working')
-console.log(req.body)
+//console.log('route working')
+//console.log(req.body)
 const ingredient = await Ingredient.create(req.body)
-console.log(ingredient)
+//console.log(ingredient)
 
 
 
@@ -38,25 +38,25 @@ console.log(ingredient)
 
 router.post('/full-recipe', async function (req, res, next){
 
-console.log('route working')
-console.log(req.body)
+//console.log('route working')
+//console.log({BODY:req.body})
 const ingredient = await Ingredient.createAll(req.body)
-console.log(ingredient)
+//console.log(ingredient)
 
 
 
     return res.send(ingredient)
 })
 
-router.get('/:username', async function(req, res, next){
+router.get('/:username', ensureCorrectUser, async function(req, res, next){
     let {username} = req.params
-    console.log('route working')
-    console.log(username)
+    //console.log('route working')
+    //console.log(username)
 
     const result = await Ingredient.getAll(username)
 
 
-    console.log(result)
+    //console.log(result)
     res.send(result)
 
 
@@ -68,14 +68,24 @@ router.get('/:username', async function(req, res, next){
 // #################################################################
 // Getting the single ingredient
 // #################################################################
-router.get('/:username/:iname', async function(req, res, next){
-let {username, iname} = req.params
+// router.get('/:username/:iname', async function(req, res, next){
+// let {username, iname} = req.params
+// console.log([username, iname])
 
-const result = await Ingredient.get(iname, username)
-console.log(result)
+// const result = await Ingredient.get(iname, username)
+// console.log(result)
+
+// return res.send(result)
+
+// })
+router.get('/:username/:id', async function(req, res, next){
+let {id} = req.params
+// console.log([username, iname])
+//console.log({id:id})
+const result = await Ingredient.getID(id)
+//console.log(result)
 
 return res.send(result)
-
 
 })
 
@@ -84,10 +94,10 @@ return res.send(result)
 // #################################################################
 router.patch('/', async function (req, res, next){
 
-console.log('route working')
-console.log(req.body)
+//console.log('route working')
+//console.log(req.body)
 const ingredient = await Ingredient.update(req.body)
-console.log(ingredient)
+//console.log(ingredient)
 
 
 

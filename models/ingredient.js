@@ -11,6 +11,7 @@ const {
 } = require("../expressError");
 
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
+const e = require("express");
 
 
 
@@ -18,7 +19,8 @@ class Ingredient{
 
 // create a new ingredient
 static async create({name, unit, full_amount, available_amount, username}){
-console.log('***made it model***')
+//console.log('***made it model***')
+    if(!name || !unit || !full_amount || !available_amount || !username) return
     const result = await db.query(
         `INSERT INTO ingredients
          (name, unit, full_amount, available_amount, username)
@@ -33,7 +35,7 @@ console.log('***made it model***')
       ]);
   const ingredient = result.rows[0];
 
-  console.log({res:ingredient})
+  //console.log({res:ingredient})
 return ingredient
     
 }
@@ -42,25 +44,30 @@ return ingredient
 // ###############################################################
 static async createAll({username, ingredients}){
     
-    console.log([username, ingredients])
+    //console.log([username, ingredients])
 
     let parsedIngredients = ingredientHelper.parser(ingredients)
-    console.log({inModel:parsedIngredients})
+    //console.log({inModel:parsedIngredients})
 
     let JSONIngredients = await ingredientHelper.ZestfulApi(parsedIngredients)
+    //console.log(JSONIngredients)
 
-    let ingredientsReadyForDB = ingredientHelper.converter(JSONIngredients)
+    // let ingredientsReadyForDB = ingredientHelper.converter(JSONIngredients)
+    let dbResponse = await ingredientHelper.sorter(username, JSONIngredients)
+
 
     
+return dbResponse
+    // return ingredientsReadyForDB
 
-    return ingredientsReadyForDB
+    return
 }
 
 // #################################################
 // get all ingredients held by the user
 // #################################################
 static async getAll(username){
-    console.log('model working')
+    //console.log('model working')
     const result = await db.query(`
     SELECT  id, name, unit, full_amount, available_amount
     From ingredients
@@ -69,7 +76,7 @@ static async getAll(username){
 
     // console.log(result)
     let ingredient = result.rows
-    console.log({ingredient:ingredient})
+    //console.log({ingredient:ingredient})
 
     return ingredient
 
@@ -85,27 +92,85 @@ static async get(iName, username){
     )
     
     let ingredient = result.rows[0]
-    console.log(ingredient)
+    //console.log(ingredient)
+
+    return ingredient
+}
+static async getID(id){
+
+    const result = await db.query(
+        `SELECT  id, name, unit, full_amount, available_amount
+        FROM ingredients
+        WHERE id = $1`, [id]
+    )
+    
+    let ingredient = result.rows[0]
+    //console.log(ingredient)
 
     return ingredient
 }
 
 
 // Update the individual ingredient
-static async update({id, available_amount}){
-    console.log('model working')
-    console.log([id, available_amount])
+static async update(data){
+    //console.log('in-model')
+    let available_amount;
+    let full_amount;
+
+    //console.log({formData:data})
+    let {id} = data
+    if(data.available_amount.available_amount || data.available_amount.full_amount){
+        available_amount = data.available_amount.available_amount
+        full_amount = data.available_amount.full_amount
+        
+    } else{
+    // let {available_amount, full_amount} = data.available_amount
+        available_amount = data.available_amount
+    }
+    
+    //console.log({id:id, available_amount:available_amount, full_amount:full_amount})
+    let setArr = []
+    let updates = []
+    let counter = 0
+    if(available_amount){
+        counter++
+        setArr.push(available_amount)
+        updates.push(`available_amount = $${counter}`)
+    }
+    if(full_amount){
+        counter++
+        setArr.push(full_amount)
+        if(updates.length === 1){
+            updates.push(',')
+            updates.push(`full_amount = $${counter}`)
+            
+        } else {
+            updates.push(`full_amount = $${counter}`)
+        }
+    }
+    if(id){
+        counter++
+        setArr.push(id)
+    }
+
+
+
+    
+
+    //console.log({ghiffff:{updates:updates, counter:counter, setArr:setArr}})
+    //console.log('model working')
+    //console.log([counter, id, available_amount, full_amount])
+    //console.log([id, available_amount])
+    //console.log()
     const result = await db.query(
         `UPDATE  ingredients
-         SET available_amount = $1
-         WHERE id = $2         
+         SET ${updates.join('')}
+         WHERE id = $${counter}         
          RETURNING id, name, unit, full_amount, available_amount`,
-      [
-        available_amount,
-        id
-      ]);
+        setArr
+      );
   const ingredient = result.rows[0];
-      console.log({ingredient:ingredient})
+      //console.log({ingredient:ingredient})
 
       return ingredient
 

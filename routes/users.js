@@ -32,13 +32,16 @@ router.post("/", async function (req, res, next) {
   try {
     // const validator = jsonschema.validate(req.body, userNewSchema);
     // const validator = jsonschema.validate(req.body);
-    // if (!validator.valid) {
+    // if (!validator.valid) { 
     //   const errs = validator.errors.map(e => e.stack);
     //   throw new BadRequestError(errs);
     // }
-    console.log({BODY:req.body})
+    // console.log({BODY:req.body})
+    console.log({WBODY:req.body})
+
     const user = await User.register(req.body);
-    const token = createToken(user);
+    console.log({w:'******************'})
+    const token = createToken(user, req.body.pref_unit);
     return res.status(201).json({ user, token });
   } catch (err) {
     return next(err);
