@@ -23,7 +23,7 @@ class User {
 
   static async authenticate(username, password) {
     // try to find the user first
-    console.log({dw:username})
+    //console.log({dw:username})
     const result = await db.query(
           `SELECT username,
                   password,
@@ -35,7 +35,7 @@ class User {
            WHERE username = $1`,
         [username],
     );
-      console.log('passed result')
+      //console.log('passed result')
     const user = result.rows[0];
 
     if (user) {
@@ -52,15 +52,16 @@ class User {
 
   /** Register user with data.
    *
-   * Returns { username, firstName, lastName, email, isAdmin }
+   * Returns { username, firstName, lastName, email, pref_unit }
    *
    * Throws BadRequestError on duplicates.
    **/
 
   static async register({ username, password, first_name, last_name, email, pref_unit }) {
-        console.log('**** inUser ****')
-        console.log('below')
-        console.log({username:username, password:password, first_Name:first_name, last_Name:last_name, email:email, pref_unit:pref_unit} )
+        //console.log('**** inUser ****')
+        //console.log('below')
+        //console.log({username:username, password:password, first_Name:first_name} )
+        //console.log({username:username, password:password, first_Name:first_name, last_Name:last_name, email:email, pref_unit:pref_unit} )
     
         const duplicateCheck = await db.query(
           `SELECT username
@@ -102,7 +103,7 @@ class User {
 
   /** Find all users.
    *
-   * Returns [{ username, first_name, last_name, email, is_admin }, ...]
+   * Returns [{ username, first_name, last_name, email, pref_unit }, ...]
    **/
 
   static async findAll() {
@@ -120,8 +121,7 @@ class User {
 
   /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
+   * Returns { username, first_name, last_name, pref_unit, jobs }
    *
    * Throws NotFoundError if user not found.
    **/
@@ -157,9 +157,9 @@ class User {
    * all the fields; this only changes provided ones.
    *
    * Data can include:
-   *   { firstName, lastName, password, email, isAdmin }
+   *   { firstName, lastName, password, email, pref_unit }
    *
-   * Returns { username, firstName, lastName, email, isAdmin }
+   * Returns { username, firstName, lastName, email, pref_unit }
    *
    * Throws NotFoundError if not found.
    *
@@ -188,8 +188,7 @@ class User {
                       RETURNING username,
                                 first_name AS "firstName",
                                 last_name AS "lastName",
-                                email,
-                                is_admin AS "isAdmin"`;
+                                email`;
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];
 
@@ -214,35 +213,8 @@ class User {
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
 
-  /** Apply for job: update db, returns undefined.
-   *
-   * - username: username applying for job
-   * - jobId: job id
-   **/
-
-//   static async applyToJob(username, jobId) {
-//     const preCheck = await db.query(
-//           `SELECT id
-//            FROM jobs
-//            WHERE id = $1`, [jobId]);
-//     const job = preCheck.rows[0];
-
-//     if (!job) throw new NotFoundError(`No job: ${jobId}`);
-
-//     const preCheck2 = await db.query(
-//           `SELECT username
-//            FROM users
-//            WHERE username = $1`, [username]);
-//     const user = preCheck2.rows[0];
-
-//     if (!user) throw new NotFoundError(`No username: ${username}`);
-
-//     await db.query(
-//           `INSERT INTO applications (job_id, username)
-//            VALUES ($1, $2)`,
-//         [jobId, username]);
-  }
-// }
+  
+}
 
 
 module.exports = User;

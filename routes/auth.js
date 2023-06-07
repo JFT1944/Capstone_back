@@ -9,7 +9,7 @@ const express = require("express");
 const router = new express.Router();
 const { createToken } = require("../helpers/tokens");
 const userAuthSchema = require("../schemas/userAuth.json");
-const userRegisterSchema = require("../schemas/userRegister.json");
+const userRegisterSchema = require("../schemas/userNew.json");
 const { BadRequestError } = require("../expressError");
 
 /** POST /auth/token:  { username, password } => { token }
@@ -33,7 +33,9 @@ router.post("/token", async function (req, res, next) {
     const user = await User.authenticate(username, password);
     const token = createToken(user);
     return res.json({ token, user });
-  } catch (err) {
+  } catch (err) 
+  { 
+    res.status(401).send({message: 'Invalid Credentials'})
     return next(err);
   }
 });
@@ -56,9 +58,10 @@ router.post("/register", async function (req, res, next) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
-
-    const newUser = await User.register({ ...req.body, isAdmin: false });
+    console.log({'999BODY':req.body})
+    const newUser = await User.register({ ...req.body });
     const token = createToken(newUser);
+    console.log(token)
     return res.status(201).json({ token });
   } catch (err) {
     return next(err);

@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const { token } = require("morgan");
 const { SECRET_KEY } = require("../config");
 const { UnauthorizedError } = require("../expressError");
+const db = require("../db")
 
 
 /** Middleware: Authenticate user.
@@ -34,25 +35,51 @@ function authenticateJWT(req, res, next) {
  * If not, raises Unauthorized.
  */
 
-function ensureLoggedIn(req, res, next) {
+// function ensureLoggedIn(req, res, next) {
+//   try {
+//     if (!res.locals.user) throw new UnauthorizedError();
+//     return next();
+//   } catch (err) {
+//     return next(err);
+//   }
+// }
+
+
+
+// This function checks to see if the user has the correct token to access the route
+// and if the user is the correct user to access the route
+async function ensureCorrectUser(req, res, next){
+
+//console.log(req.headers.authorization)
+//console.log(req.params)
+//console.log(req.body)
+
+try {
+  
+let oToken = req.headers.authorization
+let token = oToken.split(' ')
+//console.log({token:token[1]})
+let verifiedToken = jwt.verify(token[1], SECRET_KEY)
+//console.log({'Important Data':[req.body, verifiedToken]})
+if(verifiedToken.username !== req.body.username){
   try {
-    if (!res.locals.user) throw new UnauthorizedError();
-    return next();
-  } catch (err) {
-    return next(err);
+    let checker = await db.query(`SELECT id FROM ingredients WHERE username = $1`, [verifiedToken.username])
+    ////console.log({checker:checker.rows})
+    let nChecker = checker.rows.find(i => i.id === req.body.id)
+    ////console.log({nChecker:nChecker})
+    if(nChecker){
+      ////console.log('error check passes')
+  //console.log({vToken: verifiedToken})
+      return next()
+    }
+  
+    //console.log('throwing error')
+  } catch (error) {
+    throw new UnauthorizedError(error);
   }
 }
-
-function ensureCorrectUser(req, res, next){
-
-console.log(req.headers.authorization)
-console.log(req.params)
-try {
-  let oToken = req.headers.authorization
-let token = oToken.split(' ')
-console.log({token:token[1]})
-let verifiedToken = jwt.verify(token[1], SECRET_KEY)
-console.log({vToken: verifiedToken})
+//console.log('error check passes')
+//console.log({vToken: verifiedToken})
 return next()
 } catch (error) {
   next(error)
@@ -63,55 +90,10 @@ return next()
 
 
 
-/** Middleware to use when they be logged in as an admin user.
- *
- *  If not, raises Unauthorized.
- */
-
-function ensureAdmin(req, res, next) {
-  try {
-    if (!res.locals.user || !res.locals.user.isAdmin) {
-      throw new UnauthorizedError();
-    }
-    return next();
-  } catch (err) {
-    return next(err);
-  }
-}
-
-/** Middleware to use when they must provide a valid token & be user matching
- *  username provided as route param.
- *
- *  If not, raises Unauthorized.
- */
-
-function ensureCorrectUserOrAdmin(req, res, next) {
-  try {
-    const user = res.locals.user;
-    
-    console.log('******************************************')
-    console.log('******************************************')
-    console.log({decodedToken:jwt.decode(req.headers.authorization.split(' ')[1])})
-    console.log({token:req.headers.authorization})
-    console.log({params:req.params})
-    console.log(user)
-    console.log('******************************************')
-    console.log('******************************************')
-    if (!(user && (user.isAdmin || user.username === req.params.username))) {
-      console.log('unauthorized login loser')
-      throw new UnauthorizedError();
-    }
-    return next();
-  } catch (err) {
-    return next(err);
-  }
-}
-
-
 module.exports = {
   authenticateJWT,
-  ensureLoggedIn,
-  ensureAdmin,
-  ensureCorrectUserOrAdmin,
+  // ensureLoggedIn,
+  // ensureAdmin,
+  // ensureCorrectUserOrAdmin,
   ensureCorrectUser
 };

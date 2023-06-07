@@ -11,8 +11,9 @@ const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 // const companiesRoutes = require("./routes/companies");
 const usersRoutes = require("./routes/users");
+const recipeRoutes = require("./routes/Recipes");
 const ingredientRoutes = require("./routes/ingredients");
-// const jobsRoutes = require("./routes/jobs");
+
 
 const morgan = require("morgan");
 
@@ -25,11 +26,12 @@ app.use(authenticateJWT);
 
 
 app.use("/auth", authRoutes);
-// app.use("/companies", companiesRoutes);
 app.use("/users", usersRoutes);
 app.use("/ingredients", ingredientRoutes);
+app.use("/recipes", recipeRoutes);
 // app.use("/jobs", jobsRoutes);
 
+// app.use("/companies", companiesRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req, res, next) {

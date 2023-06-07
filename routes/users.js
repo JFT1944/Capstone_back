@@ -22,7 +22,7 @@ const router = express.Router();
  * admin.
  *
  * This returns the newly created user and an authentication token for them:
- *  {user: { username, firstName, lastName, email, isAdmin }, token }
+ *  {user: { username, firstName, lastName, email, pref_unit }, token }
  *
  * Authorization required: admin
  **/
@@ -30,17 +30,16 @@ const router = express.Router();
 // router.post("/", ensureAdmin, async function (req, res, next) {
 router.post("/", async function (req, res, next) {
   try {
-    // const validator = jsonschema.validate(req.body, userNewSchema);
-    // const validator = jsonschema.validate(req.body);
-    // if (!validator.valid) { 
-    //   const errs = validator.errors.map(e => e.stack);
-    //   throw new BadRequestError(errs);
-    // }
-    // console.log({BODY:req.body})
-    console.log({WBODY:req.body})
+    const validator = jsonschema.validate(req.body, userNewSchema);
+    if (!validator.valid) { 
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
+    // //console.log({BODY:req.body})
+    //console.log({WBODY:req.body})
 
     const user = await User.register(req.body);
-    console.log({w:'******************'})
+    //console.log({w:'******************'})
     const token = createToken(user, req.body.pref_unit);
     return res.status(201).json({ user, token });
   } catch (err) {
@@ -69,7 +68,7 @@ router.get("/", async function (req, res, next) {
 
 /** GET /[username] => { user }
  *
- * Returns { username, firstName, lastName, isAdmin, jobs }
+ * Returns { username, firstName, lastName, pref_unit, jobs }
  *   where jobs is { id, title, companyHandle, companyName, state }
  *
  * Authorization required: admin or same user-as-:username
@@ -91,7 +90,7 @@ router.get("/:username", async function (req, res, next) {
  * Data can include:
  *   { firstName, lastName, password, email }
  *
- * Returns { username, firstName, lastName, email, isAdmin }
+ * Returns { username, firstName, lastName, email, pref_unit }
  *
  * Authorization required: admin or same-user-as-:username
  **/
@@ -118,7 +117,7 @@ router.patch("/:username", async function (req, res, next) {
  * Authorization required: admin or same-user-as-:username
  **/
 
-router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.delete("/:username", async function (req, res, next) {
   try {
     await User.remove(req.params.username);
     return res.json({ deleted: req.params.username });
@@ -135,20 +134,6 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
  * Authorization required: admin or same-user-as-:username
  * */
 
-router.post("/:username/jobs/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  try {
-    console.log('###########################')
-    console.log('###########################')
-    console.log('madeIt')
-    console.log('###########################')
-    console.log('###########################')
-    const jobId = +req.params.id;
-    await User.applyToJob(req.params.username, jobId);
-    return res.json({ applied: jobId });
-  } catch (err) {
-    return next(err);
-  }
-});
 
 
 module.exports = router;

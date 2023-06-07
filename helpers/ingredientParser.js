@@ -34,20 +34,28 @@ let sizeLibrary = {
 };
 
 class ingredientHelper {
-  // Find the best way to remove the \n from the strings.
 
+
+
+  // Parse ingredients into an array
   static parser(ingredients) {
-    console.log({ japs: ingredients });
+    //console.log({ aps: ingredients });
+    if(!ingredients) return []
+    if(typeof ingredients !== 'string') return []
     ingredients = ingredients.split("\n");
-    console.log(ingredients);
+    //console.log(ingredients);
     ingredients = ingredients.filter((x) => x);
-    console.log({ iii: ingredients });
+    //console.log({ iii: ingredients });
 
     return ingredients;
   }
 
+
+  // Communitcate with the Zustful API to get the seperated ingredients parsed and ready for the database
   static async ZestfulApi(arr) {
-    console.log(arr);
+    //console.log(arr);
+    if (!arr || !arr[0]) return undefined;
+    if (typeof arr !== "array") return undefined;
 
     const options = {
         method: 'POST',
@@ -64,7 +72,7 @@ class ingredientHelper {
 
       try {
           const response = await axios.request(options);
-          console.log(response.data.results);
+          //console.log(response.data.results);
           return response.data.results
       } catch (error) {
           console.error(error);
@@ -116,6 +124,9 @@ class ingredientHelper {
     // ];
   }
 
+
+  // to be added: completely convert the amounts into the amount vs total amount
+  // ended up not being used
   static async converter(arr) {
     // ************************************
     // ************************************
@@ -124,24 +135,28 @@ class ingredientHelper {
     // ************************************
     // if(arr.)
     for (let ing of arr) {
-      console.log("************");
-      console.log("************");
-      console.log(ing.ingredientParsed);
-      console.log(sizeLibrary.US.teaSpoon[ing.ingredientParsed.unit]);
+      //console.log("************");
+      //console.log("************");
+      //console.log(ing.ingredientParsed);
+      //console.log(sizeLibrary.US.teaSpoon[ing.ingredientParsed.unit]);
       ing.ingredientParsed.convertedAmt =
         sizeLibrary.US.teaSpoon[ing.ingredientParsed.unit];
-      console.log(ing.ingredientParsed);
-      console.log("************");
-      console.log("************");
+      //console.log(ing.ingredientParsed);
+      //console.log("************");
+      //console.log("************");
 
       try {
         // let checkedIngredient = await Ingredient.get()
       } catch (e) {
-        console.log(e);
+        //console.log(e);
       }
     }
   }
 
+
+  // Sort the ingredients into the database
+  // If the ingredient is already in the database, subtract the amount to the available amount
+  // If the ingredient is not in the database, add it to the database
   static async sorter(username, data) {
     let ingredientsToCheck
     let usersIngredients
@@ -154,23 +169,23 @@ class ingredientHelper {
         );
         usersIngredients = res.rows
         ingredientsToCheck = res.rows.map(x => x.name)
-        // console.log(res.rows);
+        // //console.log(res.rows);
       } catch (error) {
-        console.log(error);
+        //console.log(error);
       }
     
     try {
-        console.log(usersIngredients)
-        console.log(ingredientsToCheck)
+        //console.log(usersIngredients)
+        //console.log(ingredientsToCheck)
       for (let i of data) {
-        console.log({ inSorter: i.ingredientParsed.product });
-        if(ingredientsToCheck.find(x => x === i.ingredientParsed.product)){
-            console.log('true')
-            let newu = usersIngredients.filter(x => x.name ===  i.ingredientParsed.product)
-            console.log({newu:newu})
-            console.log({newu:newu[0].available_amount, quuu:i.ingredientParsed.quantity})
+        //console.log({ inSorter: i.ingredientParsed.product });
+        if(ingredientsToCheck.find(x => x === i.ingredientParsed.product || i.ingredientRaw)){
+            //console.log('true')
+            let newu = usersIngredients.filter(x => x.name ===  i.ingredientParsed.product || i.ingredientRaw)
+            //console.log({newu:newu})
+            //console.log({newu:newu[0].available_amount, quuu:i.ingredientParsed.quantity})
             let subtractedAmount = parseInt(newu[0].available_amount) - i.ingredientParsed.quantity
-            console.log(subtractedAmount)
+            //console.log(subtractedAmount)
             const result = await db.query(
                 `UPDATE  ingredients
                  SET available_amount = $1
@@ -181,30 +196,31 @@ class ingredientHelper {
                 newu[0].id
               ]);
           const ingredient = result.rows[0];
-              console.log({ingredient:ingredient})
+              //console.log({ingredient:ingredient})
 
 
             
         }else{
-            console.log('false')
+            //console.log('false')
             let res = await db.query(`
             INSERT INTO ingredients
          (name, unit, full_amount, available_amount, username)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING id, name, unit, full_amount, available_amount`, 
-         [i.ingredientParsed.product,
+         [
+          i.ingredientParsed.product ? i.ingredientParsed.product : i.ingredientRaw,
         i.ingredientParsed.unit ? i.ingredientParsed.unit : 'other', 
         0, 
         -i.ingredientParsed.quantity,
         username])
         let newIng = res.rows[0]
-        console.log(newIng)
+        //console.log(newIng)
     }
         
       }
       return 'All should be added'
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
 }

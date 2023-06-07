@@ -19,7 +19,8 @@ class Ingredient{
 
 // create a new ingredient
 static async create({name, unit, full_amount, available_amount, username}){
-//console.log('***made it model***')
+////console.log('***made it model***')
+   try {
     if(!name || !unit || !full_amount || !available_amount || !username) return
     const result = await db.query(
         `INSERT INTO ingredients
@@ -35,22 +36,25 @@ static async create({name, unit, full_amount, available_amount, username}){
       ]);
   const ingredient = result.rows[0];
 
-  //console.log({res:ingredient})
+  ////console.log({res:ingredient})
 return ingredient
+   } catch (error) {
+    return 'Bad Request'
+   }
     
 }
 // ###############################################################
-// takes an array of ingredients and adds it in
+// takes an array of ingredients and adds it into the database
 // ###############################################################
 static async createAll({username, ingredients}){
     
-    //console.log([username, ingredients])
+    ////console.log([username, ingredients])
 
     let parsedIngredients = ingredientHelper.parser(ingredients)
-    //console.log({inModel:parsedIngredients})
+    ////console.log({inModel:parsedIngredients})
 
     let JSONIngredients = await ingredientHelper.ZestfulApi(parsedIngredients)
-    //console.log(JSONIngredients)
+    ////console.log(JSONIngredients)
 
     // let ingredientsReadyForDB = ingredientHelper.converter(JSONIngredients)
     let dbResponse = await ingredientHelper.sorter(username, JSONIngredients)
@@ -67,16 +71,16 @@ return dbResponse
 // get all ingredients held by the user
 // #################################################
 static async getAll(username){
-    //console.log('model working')
+    ////console.log('model working')
     const result = await db.query(`
     SELECT  id, name, unit, full_amount, available_amount
     From ingredients
     WHERE username = $1 
     `, [username])
 
-    // console.log(result)
+    // //console.log(result)
     let ingredient = result.rows
-    //console.log({ingredient:ingredient})
+    ////console.log({ingredient:ingredient})
 
     return ingredient
 
@@ -84,18 +88,25 @@ static async getAll(username){
 
 // get a singular ingredient
 static async get(iName, username){
-
+//console.log(iName, username)
+   try {
     const result = await db.query(
         `SELECT  id, name, unit, full_amount, available_amount
         FROM ingredients
         WHERE name = $1 username = $2`, [iName, username]
     )
-    
+    //console.log(result)
     let ingredient = result.rows[0]
-    //console.log(ingredient)
+    ////console.log(ingredient)
 
     return ingredient
+   } catch (error) {
+         return 'Bad Request'
+   }
 }
+
+
+// get the ingredient by id
 static async getID(id){
 
     const result = await db.query(
@@ -105,7 +116,8 @@ static async getID(id){
     )
     
     let ingredient = result.rows[0]
-    //console.log(ingredient)
+    //console.log({fifif:ingredient})
+    ////console.log(ingredient)
 
     return ingredient
 }
@@ -113,13 +125,14 @@ static async getID(id){
 
 // Update the individual ingredient
 static async update(data){
-    //console.log('in-model')
+    ////console.log('in-model')
     let available_amount;
     let full_amount;
-
-    //console.log({formData:data})
+//console.log({data:data})
+    ////console.log({formData:data})
     let {id} = data
     if(data.available_amount.available_amount || data.available_amount.full_amount){
+        //console.log('whabadabadoo')
         available_amount = data.available_amount.available_amount
         full_amount = data.available_amount.full_amount
         
@@ -128,7 +141,7 @@ static async update(data){
         available_amount = data.available_amount
     }
     
-    //console.log({id:id, available_amount:available_amount, full_amount:full_amount})
+    ////console.log({id:id, available_amount:available_amount, full_amount:full_amount})
     let setArr = []
     let updates = []
     let counter = 0
@@ -169,6 +182,7 @@ static async update(data){
          RETURNING id, name, unit, full_amount, available_amount`,
         setArr
       );
+      //console.log({result:result})
   const ingredient = result.rows[0];
       //console.log({ingredient:ingredient})
 
@@ -176,8 +190,14 @@ static async update(data){
 
 }
 
-// delete the ingredient
-static remove(username, iname){
+// delete the ingredient from the database
+static remove(id){
+
+    const result = db.query(
+        `DELETE FROM ingredients
+         WHERE id = $1`, [id]
+    )
+    return 'Deleted'
 
 
 }

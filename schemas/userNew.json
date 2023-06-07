@@ -1,44 +1,73 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
   "$id": "http://example.com/example.json",
   "type": "object",
-  "properties": {
-    "username": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 30
-    },
-    "password": {
-      "type": "string",
-      "minLength": 5,
-      "maxLength": 20
-    },
-    "firstName": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 30
-    },
-    "lastName": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 30
-    },
-    "email": {
-      "type": "string",
-      "minLength": 6,
-      "maxLength": 60,
-      "format": "email"
-    },
-    "isAdmin": {
-      "type": "boolean"
-    }
-  },
-  "additionalProperties": false,
+  "default": {},
+  "title": "Root Schema",
   "required": [
-    "username",
-    "firstName",
-    "lastName",
-    "password",
-    "email"
-  ]
+      "email",
+      "first_name",
+      "last_name",
+      "password",
+      "pref_unit",
+      "username"
+  ],
+  "properties": {
+      "email": {
+          "type": "string",
+          "default": "",
+          "title": "The email Schema",
+          "examples": [
+              "jp@gmail.com"
+          ]
+      },
+      "first_name": {
+          "type": "string",
+          "default": "",
+          "title": "The first_name Schema",
+          "examples": [
+              "jp"
+          ]
+      },
+      "last_name": {
+          "type": "string",
+          "default": "",
+          "title": "The last_name Schema",
+          "examples": [
+              "jp"
+          ]
+      },
+      "password": {
+          "type": "string",
+          "default": "",
+          "title": "The password Schema",
+          "examples": [
+              "jpjpjp"
+          ]
+      },
+      "pref_unit": {
+          "type": "string",
+          "default": "",
+          "title": "The pref_unit Schema",
+          "examples": [
+              "SI"
+          ]
+      },
+      "username": {
+          "type": "string",
+          "default": "",
+          "title": "The username Schema",
+          "examples": [
+              "jp101"
+          ]
+      }
+  },
+  "examples": [{
+      "email": "jp@gmail.com",
+      "first_name": "jp",
+      "last_name": "jp",
+      "password": "jpjpjp",
+      "pref_unit": "SI",
+      "username": "jp101"
+  }]
 }

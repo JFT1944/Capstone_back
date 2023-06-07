@@ -28,6 +28,12 @@ describe("POST /auth/token", function () {
         });
     expect(resp.body).toEqual({
       "token": expect.any(String),
+      user:{
+        "email": "user1@user.com",
+        "firstName": "U1F",
+        "lastName": "U1L",
+        "pref_unit": "SI", 
+        "username": "u1" }
     });
   });
 
@@ -57,7 +63,7 @@ describe("POST /auth/token", function () {
         .send({
           username: "u1",
         });
-    expect(resp.statusCode).toEqual(400);
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("bad request with invalid data", async function () {
@@ -67,22 +73,24 @@ describe("POST /auth/token", function () {
           username: 42,
           password: "above-is-a-number",
         });
-    expect(resp.statusCode).toEqual(400);
+    expect(resp.statusCode).toEqual(401);
   });
 });
 
 /************************************** POST /auth/register */
 
 describe("POST /auth/register", function () {
+  
   test("works for anon", async function () {
     const resp = await request(app)
         .post("/auth/register")
         .send({
           username: "new",
-          firstName: "first",
-          lastName: "last",
+          first_name: "first",
+          last_name: "last",
           password: "password",
-          email: "new@email.com",
+          email: 'test@gmail.com',
+          pref_unit: "SI",
         });
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
