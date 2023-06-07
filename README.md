@@ -8,6 +8,7 @@ Dispensa.io is an application built on react and node.js to expedite the grocery
 If an ingredient already exists in the database, it will subtract the amount of ingredient it is planning to use from your pantry. 
 If your available amount hits 0, it will be added to the shopping list. 
 
+################################################################################################################################################
 
 **Application Name: Dispensa.io:**
 **-Front_End**
@@ -18,6 +19,7 @@ Link: https://dispensa1.surge.sh/
 The backend is currently deployed with heroku.
 Link: https://dispensa-backend.herokuapp.com
 
+################################################################################################################################################
 
 **Implemented Features:**
 - Single ingredient form
@@ -47,6 +49,7 @@ Link: https://dispensa-backend.herokuapp.com
     This holds all of the ingredients that do have less than 0 available amount.
         - otherwise known as empty
 
+################################################################################################################################################
 
 **Tests**
 For the front_end you can check all tests by running npm test.
@@ -54,6 +57,7 @@ For the front_end you can check all tests by running npm test.
 
 For the back_end you can check all tests by running Jest.
 
+################################################################################################################################################
 
 **Standard Flow**
 The standard flow is as follows:
@@ -63,12 +67,15 @@ The standard flow is as follows:
 4. Then Go Shopping! While you shop you can check off the items you have received. 
 5. For now, your pantry is up to date, letting you know what you could potentially cook or what you may need. 
 
+################################################################################################################################################
 
 
 **API Used: **
 https://zestfuldata.com/ => Api to parse ingredients
 
 Explained: Zestful expedited the process of the assigment by taking in information in the form of an array of strings and returning nicely parsed JSON that is ready for the database. 
+
+################################################################################################################################################
 
 **TECH STACK**
 
