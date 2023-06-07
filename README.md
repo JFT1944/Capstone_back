@@ -1,7 +1,5 @@
 # Capstone_back
 
-https://zestfuldata.com/ => Api to parse ingredients
-
 **About**
 Dispensa.io is an application built on react and node.js to expedite the grocery planning and shopping process. 
 - The main use of this site is to take an ingredient and add it to the database referred to the "pantry". 
